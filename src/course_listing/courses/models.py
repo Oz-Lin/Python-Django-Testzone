@@ -16,3 +16,11 @@ class Course(models.Model):
 
     def __str__(self):
         return self.name
+
+class Enrollment(models.Model):
+    # Define the Enrollment model fields here
+    # For example:
+    # course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    # student_name = models.CharField(max_length=100)
+    # email = models.EmailField()
+    pass
