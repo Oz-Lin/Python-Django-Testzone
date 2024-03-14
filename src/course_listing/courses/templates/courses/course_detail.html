@@ -1,0 +1,21 @@
+{% extends 'courses/base.html' %}
+
+{% block content %}
+  <h2>{{ course.title }}</h2>
+  <p>Instructor: {{ course.instructor }}</p>
+  <p>Duration: {{ course.duration }}</p>
+  <p>{{ course.description }}</p>
+
+  <form method="post" action="{% url 'enroll_course' course.id %}">
+      {% csrf_token %}
+      <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" class="form-control" id="name" name="name" required>
+      </div>
+      <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" class="form-control" id="email" name="email" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Enroll</button>
+  </form>
+{% endblock %}
