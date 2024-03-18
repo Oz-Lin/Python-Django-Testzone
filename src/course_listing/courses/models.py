@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Course(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     date = models.DateField()
     location = models.CharField(max_length=255)
@@ -11,8 +12,6 @@ class Course(models.Model):
     cost = models.DecimalField(max_digits=8, decimal_places=2)
     places_available = models.IntegerField()
     learning_outcomes = models.TextField()
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
