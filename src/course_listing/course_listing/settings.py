@@ -123,3 +123,12 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Set the authentication backend to 'django.contrib.auth.backends.ModelBackend'
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Set the login URL
+LOGIN_URL = 'courses/login'  # Replace 'login' with the actual URL name for your login view
