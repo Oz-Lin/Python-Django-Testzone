@@ -6,6 +6,19 @@
   <p>Duration: {{ course.duration }}</p>
   <p>{{ course.description }}</p>
 
+  <h2>Additional Course Details</h2>
+  <p>Date: {{ course.date }}</p>
+  <p>Location: {{ course.location }}</p>
+  <p>Cost: {{ course.cost }}</p>
+  <p>Places Available: {{ course.places_available }}</p>
+  <p>Learning Outcomes: {{ course.learning_outcomes }}</p>
+
+  {% if request.user == course.user %}
+    <a href="{% url 'edit_course' course.id %}">Edit</a>
+    <a href="{% url 'delete_course' course.id %}">Delete</a>
+  {% endif %}
+
+
   <form method="post" action="{% url 'enroll_course' course.id %}">
       {% csrf_token %}
       <div class="form-group">
@@ -18,4 +31,5 @@
       </div>
       <button type="submit" class="btn btn-primary">Enroll</button>
   </form>
+
 {% endblock %}
