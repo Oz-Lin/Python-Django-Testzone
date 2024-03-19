@@ -91,3 +91,8 @@ def delete_course(request, course_id):
     if request.user == course.user:
         course.delete()
     return redirect('home')
+
+@login_required
+def my_courses(request):
+    courses = Course.objects.filter(user=request.user)
+    return render(request, 'my_courses.html', {'courses': courses})
