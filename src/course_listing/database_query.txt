@@ -1,12 +1,26 @@
+-- Create Table auth_user
+CREATE TABLE IF NOT EXISTS auth_user (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL,
+    is_superuser INTEGER NOT NULL,
+    is_staff INTEGER NOT NULL,
+    is_active INTEGER NOT NULL,
+    date_joined DATETIME NOT NULL,
+    first_name TEXT,
+    last_name TEXT,
+    email TEXT
+);
+
 -- Dummy User Accounts
 
-INSERT INTO auth_user (username, password, is_superuser, is_staff, is_active, date_joined)
-VALUES ('admin', 'passwordadmin', 1, 1, 1, datetime('now'));
+INSERT INTO auth_user (username, password, is_superuser, is_staff, is_active, date_joined, first_name, last_name, email)
+VALUES ('admin_test', 'passwordadmin', 1, 1, 1, datetime('now'), 'admun_first_name', 'admun_last_name', 'admuntest@gmail.com');
 
-INSERT INTO auth_user (username, password, is_superuser, is_staff, is_active, date_joined)
-VALUES ('user1', 'passworduser1', 0, 0, 1, datetime('now'));
+INSERT INTO auth_user (username, password, is_superuser, is_staff, is_active, date_joined, first_name, last_name, email)
+VALUES ('user1_test', 'passworduser1', 0, 0, 1, datetime('now'), 'user1_first_name', 'user1_last_name', 'user1test@gmail.com');
 
-INSERT INTO auth_user (username, password, is_superuser, is_staff, is_active, date_joined)
-VALUES ('user2', 'passworduser2', 0, 0, 1, datetime('now'));
+INSERT INTO auth_user (username, password, is_superuser, is_staff, is_active, date_joined, first_name, last_name, email)
+VALUES ('user2_test', 'passworduser2', 0, 0, 1, datetime('now'), 'user2_first_name', 'user2_last_name', 'user2test@gmail.com');
 
 -- Add more queries for additional user accounts as needed
