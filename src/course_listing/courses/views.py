@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Course, Review, Enrollment
+from django.contrib import messages
 from .forms import CourseForm, ReviewForm, EnrollmentForm
 
 # Create your views here.
@@ -12,22 +13,66 @@ def course_list(request):
 
 def course_detail(request, course_id):
     course = Course.objects.get(id=course_id)
-    reviews = Review.objects.filter(course=course)
-    enrollment_form = EnrollmentForm()
-    return render(request, 'courses/course_detail.html', {'course': course, 'reviews': reviews, 'enrollment_form': enrollment_form})
+    enrollments = Enrollment.objects.filter(course=course)
+    if request.method == 'POST':
+        enrollment_form = EnrollmentForm(request.POST)
+        if enrollment_form.is_valid():
+            name = enrollment_form.cleaned_data['name']
+            email = enrollment_form.cleaned_data['email']
+
+            # Check if the user is already enrolled
+            if Enrollment.objects.filter(course=course, email=email).exists():
+                messages.warning(request, 'You are already enrolled in this course!')
+            else:
+                enrollment = enrollment_form.save(commit=False)
+                enrollment.course = course
+                enrollment.save()
+                messages.success(request, f'Congratulations, {name}! You have successfully enrolled in the course!')
+                return redirect('course_detail', course_id=course_id)
+        else:
+            for field, errors in enrollment_form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field.capitalize()}: {error}')
+    else:
+        initial_data = {'name': request.user.get_full_name(),
+                        'email': request.user.email} if request.user.is_authenticated else None
+        enrollment_form = EnrollmentForm(initial=initial_data)
+    return render(request, 'courses/course_detail.html',
+                  {'course': course, 'enrollment_form': enrollment_form, 'enrollments': enrollments})
 
 def enroll_course(request, course_id):
     course = Course.objects.get(id=course_id)
     if request.method == 'POST':
         enrollment_form = EnrollmentForm(request.POST)
         if enrollment_form.is_valid():
-            enrollment = enrollment_form.save(commit=False)
-            enrollment.course = course
-            enrollment.save()
-            return redirect('course_detail', course_id=course_id)
+            name = enrollment_form.cleaned_data['name']
+            email = enrollment_form.cleaned_data['email']
+
+            # Check if the user is already enrolled
+            if Enrollment.objects.filter(course=course, email=email).exists():
+                messages.warning(request, 'You are already enrolled in this course!')
+            else:
+                enrollment = enrollment_form.save(commit=False)
+                enrollment.course = course
+                enrollment.save()
+                messages.success(request, f'Congratulations, {name}! You have successfully enrolled in the course!')
+                return redirect('course_detail', course_id=course_id)
+        else:
+            for field, errors in enrollment_form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field.capitalize()}: {error}')
     else:
-        enrollment_form = EnrollmentForm()
+        initial_data = {'name': request.user.get_full_name(),
+                        'email': request.user.email} if request.user.is_authenticated else None
+        enrollment_form = EnrollmentForm(initial=initial_data)
     return render(request, 'courses/course_detail.html', {'course': course, 'enrollment_form': enrollment_form})
+
+def cancel_enrollment(request, enrollment_id):
+    enrollment = Enrollment.objects.get(id=enrollment_id)
+    course_id = enrollment.course.id
+    enrollment.delete()
+    messages.success(request, 'You have successfully canceled your enrollment.')
+    return redirect('course_detail', course_id=course_id)
 
 # User account module
 def register(request):
