@@ -69,4 +69,15 @@
         <button type="submit" class="btn btn-primary">Post Comment</button>
         </form>
 
+    {% if course.ratings.all %}
+        <p>Average Rating: {{ course.ratings.aggregate(avg_rating=Avg('rating'))['avg_rating'] }}</p>
+    {% endif %}
+
+    <h3>Rate the Course</h3>
+    <form method="post" action="{% url 'course_detail' course.id %}">
+        {% csrf_token %}
+        {{ rating_form.as_p }}
+        <button type="submit" class="btn btn-primary">Rate Course</button>
+    </form>
+
 {% endblock %}

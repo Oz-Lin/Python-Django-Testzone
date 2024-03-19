@@ -4,7 +4,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from .models import Course, Review, Enrollment, Comment
 from django.contrib import messages
-from .forms import CourseForm, ReviewForm, EnrollmentForm, CommentForm
+from .forms import CourseForm, ReviewForm, EnrollmentForm, CommentForm, RatingForm
 from django.db.models import Q # search func
 from django.core.paginator import Paginator # pagination to the course list page
 
@@ -33,6 +33,8 @@ def course_detail(request, course_id):
     enrollments = Enrollment.objects.filter(course=course)
     enrollment_form = EnrollmentForm()
     comment_form = CommentForm()
+    rating_form = RatingForm()
+
     if request.method == 'POST':
         if 'enrollment_form' in request.POST:
             enrollment_form = EnrollmentForm(request.POST)
@@ -68,9 +70,20 @@ def course_detail(request, course_id):
             messages.success(request, 'Your comment has been posted.')
             return redirect('course_detail', course_id=course_id)
 
-    return render(request, 'courses/course_detail.html',
-                  {'course': course, 'enrollments': enrollments, 'enrollment_form': enrollment_form,
-                   'comment_form': comment_form})
+    elif 'rating_form' in request.POST:
+        rating_form = RatingForm(request.POST)
+        if rating_form.is_valid():
+            rating = rating_form.save(commit=False)
+            rating.course = course
+            rating.user = request.user
+            rating.save()
+            messages.success(request, 'Thank you for rating the course.')
+            return redirect('course_detail', course_id=course_id)
+
+    return render(request, 'courses/course_detail.html', {'course': course, 'enrollments': enrollments,
+                                                          'enrollment_form': enrollment_form,
+                                                          'comment_form': comment_form,
+                                                          'rating_form': rating_form})
 
 def enroll_course(request, course_id):
     course = Course.objects.get(id=course_id)
