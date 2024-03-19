@@ -52,4 +52,21 @@
     <button type="submit" class="btn btn-primary">Enroll</button>
   </form>
 
+    {% for comment in course.comments.all %}
+        <div class="comment">
+            <p>{{ comment.content }}</p>
+            <p>Posted by: {{ comment.user.username }}</p>
+            <p>Posted at: {{ comment.created_at }}</p>
+        </div>
+        {% empty %}
+        <p>No comments yet.</p>
+    {% endfor %}
+
+    <h3>Post a Comment</h3>
+        <form method="post" action="{% url 'course_detail' course.id %}">
+        {% csrf_token %}
+        {{ comment_form.as_p }}
+        <button type="submit" class="btn btn-primary">Post Comment</button>
+        </form>
+
 {% endblock %}

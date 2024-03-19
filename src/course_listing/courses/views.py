@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from .models import Course, Review, Enrollment
+from .models import Course, Review, Enrollment, Comment
 from django.contrib import messages
-from .forms import CourseForm, ReviewForm, EnrollmentForm
+from .forms import CourseForm, ReviewForm, EnrollmentForm, CommentForm
 from django.db.models import Q # search func
 from django.core.paginator import Paginator # pagination to the course list page
 
@@ -31,31 +31,46 @@ def course_list(request):
 def course_detail(request, course_id):
     course = Course.objects.get(id=course_id)
     enrollments = Enrollment.objects.filter(course=course)
+    enrollment_form = EnrollmentForm()
+    comment_form = CommentForm()
     if request.method == 'POST':
-        enrollment_form = EnrollmentForm(request.POST)
-        if enrollment_form.is_valid():
-            name = enrollment_form.cleaned_data['name']
-            email = enrollment_form.cleaned_data['email']
+        if 'enrollment_form' in request.POST:
+            enrollment_form = EnrollmentForm(request.POST)
+            if enrollment_form.is_valid():
+                name = enrollment_form.cleaned_data['name']
+                email = enrollment_form.cleaned_data['email']
 
-            # Check if the user is already enrolled
-            if Enrollment.objects.filter(course=course, email=email).exists():
-                messages.warning(request, 'You are already enrolled in this course!')
+                # Check if the user is already enrolled
+                if Enrollment.objects.filter(course=course, email=email).exists():
+                    messages.warning(request, 'You are already enrolled in this course!')
+                else:
+                    enrollment = enrollment_form.save(commit=False)
+                    enrollment.course = course
+                    enrollment.save()
+                    messages.success(request, f'Congratulations, {name}! You have successfully enrolled in the course!')
+                    return redirect('course_detail', course_id=course_id)
             else:
-                enrollment = enrollment_form.save(commit=False)
-                enrollment.course = course
-                enrollment.save()
-                messages.success(request, f'Congratulations, {name}! You have successfully enrolled in the course!')
-                return redirect('course_detail', course_id=course_id)
+                for field, errors in enrollment_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field.capitalize()}: {error}')
         else:
-            for field, errors in enrollment_form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field.capitalize()}: {error}')
-    else:
-        initial_data = {'name': request.user.get_full_name(),
+            initial_data = {'name': request.user.get_full_name(),
                         'email': request.user.email} if request.user.is_authenticated else None
-        enrollment_form = EnrollmentForm(initial=initial_data)
+            enrollment_form = EnrollmentForm(initial=initial_data)
+
+    elif 'comment_form' in request.POST:
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment = comment_form.save(commit=False)
+            comment.course = course
+            comment.user = request.user
+            comment.save()
+            messages.success(request, 'Your comment has been posted.')
+            return redirect('course_detail', course_id=course_id)
+
     return render(request, 'courses/course_detail.html',
-                  {'course': course, 'enrollment_form': enrollment_form, 'enrollments': enrollments})
+                  {'course': course, 'enrollments': enrollments, 'enrollment_form': enrollment_form,
+                   'comment_form': comment_form})
 
 def enroll_course(request, course_id):
     course = Course.objects.get(id=course_id)
