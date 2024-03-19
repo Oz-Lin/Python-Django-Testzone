@@ -30,7 +30,11 @@
     <h2>Enrollments</h2>
     <ul>
       {% for enrollment in enrollments %}
-        <li>{{ enrollment.name }} - {{ enrollment.email }} <a href="{% url 'cancel_enrollment' enrollment.id %}">(Cancel)</a></li>
+        <li>{{ enrollment.name }} - {{ enrollment.email }}
+          {% if request.user == enrollment.user %}
+            <a href="{% url 'cancel_enrollment' enrollment.id %}">(Cancel)</a>
+          {% endif %}
+        </li>
       {% endfor %}
     </ul>
   {% endif %}

@@ -5,11 +5,22 @@ from django.contrib.auth.decorators import login_required
 from .models import Course, Review, Enrollment
 from django.contrib import messages
 from .forms import CourseForm, ReviewForm, EnrollmentForm
+from django.db.models import Q # search func
 
 # Create your views here.
 def course_list(request):
-    courses = Course.objects.all()
-    return render(request, 'courses/course_list.html', {'courses': courses})
+    query = request.GET.get('q')
+
+    if query:
+        courses = Course.objects.filter(
+            Q(title__icontains=query) |
+            Q(instructor__icontains=query) |
+            Q(description__icontains=query)
+        )
+    else:
+        courses = Course.objects.all()
+
+    return render(request, 'courses/course_list.html', {'courses': courses, 'query': query})
 
 def course_detail(request, course_id):
     course = Course.objects.get(id=course_id)
@@ -55,6 +66,11 @@ def enroll_course(request, course_id):
                 enrollment = enrollment_form.save(commit=False)
                 enrollment.course = course
                 enrollment.save()
+
+                # Update the number of available places for the course
+                course.places_available -= 1
+                course.save()
+
                 messages.success(request, f'Congratulations, {name}! You have successfully enrolled in the course!')
                 return redirect('course_detail', course_id=course_id)
         else:
@@ -69,10 +85,21 @@ def enroll_course(request, course_id):
 
 def cancel_enrollment(request, enrollment_id):
     enrollment = Enrollment.objects.get(id=enrollment_id)
-    course_id = enrollment.course.id
-    enrollment.delete()
-    messages.success(request, 'You have successfully canceled your enrollment.')
-    return redirect('course_detail', course_id=course_id)
+
+    # Check if the current user is the owner of the enrollment
+    if request.user == enrollment.user:
+        course = enrollment.course
+        enrollment.delete()
+
+        # Update the number of available places for the course
+        course.places_available += 1
+        course.save()
+
+        messages.success(request, 'You have successfully canceled your enrollment.')
+    else:
+        messages.error(request, 'You are not authorized to cancel this enrollment.')
+
+    return redirect('course_detail', course_id=course.id)
 
 # User account module
 def register(request):

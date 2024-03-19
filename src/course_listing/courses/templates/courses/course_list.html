@@ -1,12 +1,29 @@
 {% extends 'courses/base.html' %}
 
 {% block content %}
-  <!-- Add your course listing content here -->
-    <h2>Available Courses:</h2>
+  <h1>Course List</h1>
+
+  <form method="get" action="{% url 'course_list' %}">
+    <div class="form-group">
+      <input type="text" class="form-control" name="q" placeholder="Search courses" value="{{ query }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
+  {% if courses %}
     <ul>
-        {% for course in courses %}
-            <!-- <li>{{ course.title }}</li> -->
-            <a href="{% url 'course_detail' course.id %}">{{ course.title }}</a>
-        {% endfor %}
+      {% for course in courses %}
+        <li>
+          <a href="{% url 'course_detail' course.id %}">{{ course.title }}</a>
+          <p>Instructor: {{ course.instructor }}</p>
+          <p>Description: {{ course.description }}</p>
+        </li>
+      {% empty %}
+        <p>No courses found.</p>
+      {% endfor %}
     </ul>
+  {% else %}
+    <p>No courses available.</p>
+  {% endif %}
+
 {% endblock %}
