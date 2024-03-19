@@ -25,12 +25,16 @@ app_name = 'courses'
 urlpatterns = [
     # path("admin/", admin.site.urls), #default
     path('', course_list, name='course_list'),
+    path('courses_list/', course_list, name='course_list'),
     path('course/<int:course_id>/', course_detail, name='course_detail'),
     path('course/<int:course_id>/enroll/', enroll_course, name='enroll_course'),
+    path('register/', register, name='register'),
     path('course/register/', register, name='register'),
+    path('login/', user_login, name='login'),
     path('course/login/', user_login, name='login'),
     path('course/logout/', user_logout, name='logout'),
     path('create/', create_course, name='create_course'),
     path('edit/<int:course_id>/', edit_course, name='edit_course'),
     path('delete/<int:course_id>/', delete_course, name='delete_course'),
+# will fix the paths on the go
 ]
