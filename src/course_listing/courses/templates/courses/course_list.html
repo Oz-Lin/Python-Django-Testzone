@@ -10,9 +10,9 @@
     <button type="submit" class="btn btn-primary">Search</button>
   </form>
 
-  {% if courses %}
+  {% if page_obj %}
     <ul>
-      {% for course in courses %}
+      {% for course in page_obj %}
         <li>
           <a href="{% url 'course_detail' course.id %}">{{ course.title }}</a>
           <p>Instructor: {{ course.instructor }}</p>
@@ -22,6 +22,23 @@
         <p>No courses found.</p>
       {% endfor %}
     </ul>
+
+    {% if page_obj.has_other_pages %}
+      <div class="pagination">
+        {% if page_obj.has_previous %}
+          <a href="?page=1{% if query %}&q={{ query }}{% endif %}">First</a>
+          <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Previous</a>
+        {% endif %}
+
+        <span class="current-page">{{ page_obj.number }}</span>
+
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Next</a>
+          <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}">Last</a>
+        {% endif %}
+      </div>
+    {% endif %}
+
   {% else %}
     <p>No courses available.</p>
   {% endif %}

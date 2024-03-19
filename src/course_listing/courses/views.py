@@ -6,6 +6,7 @@ from .models import Course, Review, Enrollment
 from django.contrib import messages
 from .forms import CourseForm, ReviewForm, EnrollmentForm
 from django.db.models import Q # search func
+from django.core.paginator import Paginator # pagination to the course list page
 
 # Create your views here.
 def course_list(request):
@@ -20,7 +21,12 @@ def course_list(request):
     else:
         courses = Course.objects.all()
 
-    return render(request, 'courses/course_list.html', {'courses': courses, 'query': query})
+    paginator = Paginator(courses, 10)  # Display 10 courses per page
+
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'courses/course_list.html', {'page_obj': page_obj, 'query': query})
 
 def course_detail(request, course_id):
     course = Course.objects.get(id=course_id)
