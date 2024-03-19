@@ -1,0 +1,12 @@
+-- Dummy User Accounts
+
+INSERT INTO auth_user (username, password, is_superuser, is_staff, is_active, date_joined)
+VALUES ('admin', 'passwordadmin', 1, 1, 1, datetime('now'));
+
+INSERT INTO auth_user (username, password, is_superuser, is_staff, is_active, date_joined)
+VALUES ('user1', 'passworduser1', 0, 0, 1, datetime('now'));
+
+INSERT INTO auth_user (username, password, is_superuser, is_staff, is_active, date_joined)
+VALUES ('user2', 'passworduser2', 0, 0, 1, datetime('now'));
+
+-- Add more queries for additional user accounts as needed
