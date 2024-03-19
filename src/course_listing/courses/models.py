@@ -3,12 +3,12 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Course(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255)
-    date = models.DateField()
-    location = models.CharField(max_length=255)
+    title = models.CharField(max_length=100)
+    instructor = models.CharField(max_length=100)
+    duration = models.IntegerField()
     description = models.TextField()
-    photo = models.ImageField(upload_to='course_photos')
+    date = models.DateField()
+    location = models.CharField(max_length=100)
     cost = models.DecimalField(max_digits=8, decimal_places=2)
     places_available = models.IntegerField()
     learning_outcomes = models.TextField()
@@ -17,9 +17,15 @@ class Course(models.Model):
         return self.name
 
 class Enrollment(models.Model):
-    # Define the Enrollment model fields here
-    # For example:
-    # course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    # student_name = models.CharField(max_length=100)
-    # email = models.EmailField()
-    pass
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    student_name = models.CharField(max_length=100)
+    email = models.EmailField()
+
+    def __str__(self):
+        return f"{self.student_name} - {self.course.title}"
+
+class Review(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    rating = models.IntegerField()
+    comment = models.TextField()
